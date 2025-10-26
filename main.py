@@ -44,8 +44,8 @@ def change_hotel(
     new_name: str = Body(embed= True),
     new_title: str = Body(embed= True)
 ):
-    for id, hotel in enumerate(hotels):
-        if id == hotel_id:
+    for hotel in hotels:
+        if hotel["id"] == hotel_id:
             hotel["name"] = new_name
             hotel["title"] = new_title
             return hotel
