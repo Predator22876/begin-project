@@ -20,7 +20,7 @@ def get_hotels(
         if title and hotel["title"] != title:
             continue
         hotels_.append(hotel)
-    return hotels
+    return hotels_
 
 @app.post("/hotels")
 def create_hotel(
