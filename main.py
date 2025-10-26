@@ -13,11 +13,13 @@ def get_hotels(
     id: int | None = Query(None, description= "Айди"),
     title: str | None = Query(None, description= "Название отеля")
 ):
+    hotels_ = []
     for hotel in hotels:
         if id and hotel["id"] != id:
             continue
         if title and hotel["title"] != title:
             continue
+        hotels_.append(hotel)
     return hotels
 
 @app.post("/hotels")
