@@ -1,4 +1,4 @@
-from fastapi import Body, Query, APIRouter
+from fastapi import Body, Query, APIRouter 
 
 from dependencies import PaginationDep
 from schemas.hotels import Hotel, HotelPATCH
@@ -32,7 +32,7 @@ def get_hotels(
         hotels_.append(hotel)
 
     if pagination.page and pagination.per_page:
-        return hotels_[(pagination.page - 1) * pagination.per_page : pagination.page * pagination.per_page]
+        return hotels_[(pagination.page - 1) * pagination.per_page:][:pagination.per_page]
     return hotels_
 
 @router.post("")
@@ -88,4 +88,3 @@ def change_param(
                 return {"status": "object parameters have not modified"}
             return hotel
     return {"status": "object is not finded"}
-
