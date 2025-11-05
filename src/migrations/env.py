@@ -5,12 +5,6 @@ from sqlalchemy import pool
 
 from alembic import context
 
-import sys
-import os
-
-# Добавляем корень проекта в sys.path
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
-
 from src.config import settings
 from src.database import Base
 from src.models.hotels import HotelsOrm
