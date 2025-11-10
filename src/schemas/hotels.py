@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field
 
 
 class Hotel(BaseModel):
+    word: str
     title: str
     location: str
     
