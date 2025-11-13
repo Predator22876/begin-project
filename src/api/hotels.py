@@ -2,6 +2,7 @@ from fastapi import Body, Query, APIRouter
 
 from sqlalchemy import insert, select, func
 
+from repositories.hotels import HotelsRepository
 from src.models.hotels import HotelsOrm
 from src.database import async_session_maker
 from src.api.dependencies import PaginationDep
@@ -19,24 +20,13 @@ async def get_hotels(
 ):
     per_page = pagination.per_page or 5
     async with async_session_maker() as session:
-        query = select(HotelsOrm)
-
-        if location:
-            query = query.filter(func.lower(HotelsOrm.location).like(f"%{location.strip().lower()}%"))
-        if title:
-            query = query.filter(func.lower(HotelsOrm.title).like(f"%{title.strip().lower()}%"))
-        query = (
-            query
-            .limit(per_page)
-            .offset((pagination.page - 1) * per_page)
+        return await HotelsRepository(session).get_all(
+            location= location, 
+            title= title, 
+            limit= per_page, 
+            offset= (pagination.page - 1) * per_page
         )
-        print(query.compile(compile_kwargs = {"literal_binds": True}))
-        result = await session.execute(query)
-        
-        hotels = result.scalars().all()
-        # print(type(hotels), hotels)
-        return hotels
-    
+            
 @router.post("")
 async def create_hotel(hotel_data: Hotel = Body(openapi_examples= {
     "1": {"summary": "Сочи", "value": {
@@ -50,12 +40,10 @@ async def create_hotel(hotel_data: Hotel = Body(openapi_examples= {
     })
 ):
     async with async_session_maker() as session:
-        add_hotel_stmt = insert(HotelsOrm).values(**hotel_data.model_dump())
-        # print(add_hotel_stmt.compile(compile_kwargs={"literal_binds": True})) #дебаг строчка - возвращает sql запрос
-        await session.execute(add_hotel_stmt)
+        hotel = await HotelsRepository(session).add(hotel_data)
         await session.commit()
-      
-    return {"status": "ok"}
+
+    return {"status": "ok", "data": hotel}
     
 @router.delete("/{hotel_id}")
 def del_hotels(hotel_id: int):
