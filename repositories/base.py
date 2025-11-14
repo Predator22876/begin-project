@@ -1,4 +1,6 @@
-from sqlalchemy import insert, select
+from fastapi import HTTPException
+from pydantic import BaseModel
+from sqlalchemy import delete, insert, select, update
 
 
 class BaseRepository:
@@ -19,9 +21,29 @@ class BaseRepository:
             
         return result.scalars().one_or_none()
     
-    async def add(self, *args, **kwargs):
-        query = insert(self.model)
+    async def add(self, data: BaseModel):
+        add_data_stmt = insert(self.model).values(**data.model_dump()).returning(self.model)
+        result = await self.session.execute(add_data_stmt)
+        return result.scalars().one()
+    
+    async def edit(self, data: BaseModel, is_patch: bool = False, **filter_by):
+        edit_stmt = (
+            update(self.model).
+            filter_by(**filter_by).
+            values(**data.model_dump(exclude_unset=is_patch))
+        )
+        await self.session.execute(edit_stmt)
         
-        await self.session.execute(query)
+    async def delete(self, **filter_by):
+        delete_stmt = (
+            delete(self.model).
+            filter_by(**filter_by).
+            returning(self.model)
+        )
         
+        result = await self.session.execute(delete_stmt)
+        deleted_id = result.scalars().one()
+
+        if deleted_id is None:
+            raise HTTPException(status_code=404, detail="Отель не найден") 
         

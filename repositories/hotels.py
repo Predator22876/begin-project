@@ -1,4 +1,4 @@
-from sqlalchemy import insert, select, func
+from sqlalchemy import select, func
 
 from src.models.hotels import HotelsOrm
 from repositories.base import BaseRepository
@@ -31,12 +31,4 @@ class HotelsRepository(BaseRepository):
         return result.scalars().all()
         # print(type(hotels), hotels)
         
-    async def add(
-        self,
-        hotel_data
-    ):
-        query = insert(HotelsOrm).values(**hotel_data.model_dump())
-        await self.session.execute(query)
-        # print(query.compile(compile_kwargs={"literal_binds": True})) #дебаг строчка - возвращает sql запрос
-        
-        return hotel_data
+    
