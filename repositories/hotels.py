@@ -1,11 +1,13 @@
 from sqlalchemy import select, func
 
+from src.schemas.hotels import Hotel
 from src.models.hotels import HotelsOrm
 from repositories.base import BaseRepository
 
 
 class HotelsRepository(BaseRepository):
     model = HotelsOrm
+    schema = Hotel
     
     async def get_all(
         self, 

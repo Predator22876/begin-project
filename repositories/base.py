@@ -5,6 +5,7 @@ from sqlalchemy import delete, insert, select, update
 
 class BaseRepository:
     model = None
+    schema: BaseModel = None
     
     def __init__(self, session):
         self.session = session
@@ -13,18 +14,22 @@ class BaseRepository:
         query = select(self.model)
         result = await self.session.execute(query)
             
-        return result.scalars().all()
+        return [self.schema.model_validate(item, from_attributes= True) for item in result.scalars().all()]
     
     async def get_one_or_none(self, **filter_by):
         query = select(self.model).filter_by(**filter_by)
         result = await self.session.execute(query)
             
-        return result.scalars().one_or_none()
+        item = result.scalars().one_or_none()
+        if item is None:
+            return None
+        return self.schema.model_validate(item, from_attributes= True)
     
     async def add(self, data: BaseModel):
         add_data_stmt = insert(self.model).values(**data.model_dump()).returning(self.model)
         result = await self.session.execute(add_data_stmt)
-        return result.scalars().one()
+        item = result.scalars().one()
+        return self.schema.model_validate(item, from_attributes= True)
     
     async def edit(self, data: BaseModel, is_patch: bool = False, **filter_by):
         edit_stmt = (
@@ -42,8 +47,9 @@ class BaseRepository:
         )
         
         result = await self.session.execute(delete_stmt)
-        deleted_id = result.scalars().one()
+        item = result.scalars().one()
 
-        if deleted_id is None:
+        if item is None:
             raise HTTPException(status_code=404, detail="Отель не найден") 
+        return self.schema.model_validate(item, from_attributes= True)
         
