@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 import uvicorn
+from fastapi.responses import RedirectResponse
 
 from src.api.hotels import router as router_hotels
 from src.api.auth import router as router_auth
@@ -8,6 +9,10 @@ app = FastAPI()
 
 app.include_router(router_auth)
 app.include_router(router_hotels)
+
+@app.get("/")
+async def root():
+    return RedirectResponse(url="/docs")
 
 if __name__ == "__main__":
     uvicorn.run("main:app", reload= True)
