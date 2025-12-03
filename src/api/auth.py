@@ -46,6 +46,6 @@ async def only_auth(
     access_token = request.cookies.get("access_token")
     data = AuthService().encode_token(access_token)
     user_id = data["user_id"]
-    async with async_session_maker as session:
+    async with async_session_maker() as session:
         user = await UsersRepository(session).get_one_or_none(id=user_id)
         return user
