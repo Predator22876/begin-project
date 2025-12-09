@@ -25,6 +25,11 @@ async def get_hotels(
             offset= (pagination.page - 1) * per_page
         )
             
+@router.get("/{hotel_id}")
+async def get_hotel(hotel_id: int):
+    async with async_session_maker() as session:
+        return await HotelsRepository(session).get_one_or_none(id= hotel_id)
+
 @router.post("")
 async def create_hotel(hotel_data: HotelAdd = Body(openapi_examples= {
     "1": {"summary": "Сочи", "value": {
@@ -62,7 +67,7 @@ async def edit_hotel(
     return {"status": "ok"}
 
 @router.patch("/{id}")
-async def change_param(
+async def edit_hotel_params(
     hotel_id: int,
     hotel_data: HotelPATCH
 ):
@@ -70,9 +75,3 @@ async def change_param(
         await HotelsRepository(session).edit(hotel_data, is_patch= True, id=hotel_id)
         await session.commit()
     return {"status": "ok"}
-
-@router.get("/{hotel_id}")
-async def get_hotel(hotel_id: int):
-    async with async_session_maker() as session:
-        return await HotelsRepository(session).get_one_or_none(id= hotel_id)
-

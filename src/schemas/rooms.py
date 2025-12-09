@@ -23,7 +23,6 @@ class Room(RoomsAdd):
 
 
 class RoomsPATCH(BaseModel):
-    hotel_id: int = None
     title: str = None
     description: str | None = None
     price: int = None
