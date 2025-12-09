@@ -3,7 +3,7 @@ from fastapi import APIRouter, Body
 from src.repositories.rooms import RoomsRepository
 
 from src.database import async_session_maker
-from src.schemas.rooms import RoomsAdd, RoomsAddRequest, RoomsPatchRequest
+from src.schemas.rooms import RoomsAdd, RoomsAddRequest, RoomsPatchRequest, RoomsPatch
 
 router = APIRouter(prefix= "/hotels", tags= ["Номера"])
 
@@ -67,7 +67,7 @@ async def edit_room_params(
     room_id: int,
     room_new_data: RoomsPatchRequest
 ):
-    _room_data = RoomsAdd(hotel_id= hotel_id, **room_new_data.model_dump())
+    _room_data = RoomsPatch(hotel_id= hotel_id, **room_new_data.model_dump())
     async with async_session_maker() as session:
         new_room = await RoomsRepository(session).edit(_room_data, is_patch=True, id= room_id)
         await session.commit()
