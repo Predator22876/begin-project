@@ -8,9 +8,9 @@ from src.schemas.rooms import RoomsAdd, RoomsAddRequest, RoomsPatchRequest, Room
 router = APIRouter(prefix= "/hotels", tags= ["Номера"])
 
 @router.get("/{hotel_id}/rooms")
-async def get_rooms():
+async def get_rooms(hotel_id: int):
     async with async_session_maker() as session:
-        return await RoomsRepository(session).get_all()
+        return await RoomsRepository(session).get_filtered(hotel_id=hotel_id)
 
 @router.get("/{hotel_id}/rooms/{room_id}")
 async def get_room(
@@ -18,7 +18,7 @@ async def get_room(
     room_id: int
 ):
     async with async_session_maker() as session:
-        return await RoomsRepository(session).get_one_or_none(id= room_id, hotel_id= hotel_id)
+        return await RoomsRepository(session).get_one_or_none(id=room_id, hotel_id=hotel_id)
 
 @router.post("/{hotel_id}/rooms")
 async def create_room(
@@ -44,7 +44,7 @@ async def del_rooms(
     room_id: int
 ):
     async with async_session_maker() as session:
-        await RoomsRepository(session).delete(id=room_id)
+        await RoomsRepository(session).delete(id=room_id, hotel_id=hotel_id)
         await session.commit()
     return {"status": "ok"}
 
@@ -56,7 +56,7 @@ async def edit_room(
 ):
     _room_data = RoomsAdd(hotel_id= hotel_id, **room_new_data.model_dump())
     async with async_session_maker() as session:
-        new_room = await RoomsRepository(session).edit(_room_data, id= room_id)
+        await RoomsRepository(session).edit(_room_data, id= room_id, hotel_id=hotel_id)
         await session.commit()
     
     return {"status": "ok"}
@@ -67,9 +67,9 @@ async def edit_room_params(
     room_id: int,
     room_new_data: RoomsPatchRequest
 ):
-    _room_data = RoomsPatch(hotel_id= hotel_id, **room_new_data.model_dump())
+    _room_data = RoomsPatch(hotel_id= hotel_id, **room_new_data.model_dump(exclude_unset=True))
     async with async_session_maker() as session:
-        new_room = await RoomsRepository(session).edit(_room_data, is_patch=True, id= room_id)
+        await RoomsRepository(session).edit(_room_data, is_patch=True, id= room_id, hotel_id=hotel_id)
         await session.commit()
     
     return {"status": "ok"}
