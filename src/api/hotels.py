@@ -80,9 +80,3 @@ async def change_param(
         
     return {"status": "ok"}
 
-@router.get("/{hotel_id}")
-async def get_hotel(
-    db: DBDep,
-    hotel_id: int
-):
-    return await db.hotels.get_one_or_none(id=hotel_id)
