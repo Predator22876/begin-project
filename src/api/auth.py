@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Response, Request
+from fastapi import APIRouter, HTTPException, Response
 
 from src.schemas.users import UserAdd, UserRequestAdd, UserRequestAddWithName
 from src.services.auth import AuthService
@@ -44,8 +44,8 @@ async def get_me(
     db: DBDep,
     user_id: UserIdDep,
 ):
-        user = await db.users.get_one_or_none(id=user_id)
-        return user
+    user = await db.users.get_one_or_none(id=user_id)
+    return user
 
 @router.post("/logout")
 async def logout(response: Response):

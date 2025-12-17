@@ -1,19 +1,28 @@
 from fastapi import APIRouter, Body
 
-from src.repositories.rooms import RoomsRepository
-
-from src.database import async_session_maker
-from src.schemas.rooms import RoomsAdd, RoomsAddRequest
+from src.schemas.rooms import RoomsAdd, RoomsAddRequest, RoomsPatchRequest, RoomsPatch
+from src.api.dependencies import DBDep
 
 router = APIRouter(prefix= "/hotels", tags= ["Номера"])
 
 @router.get("/{hotel_id}/rooms")
-async def get_rooms():
-    async with async_session_maker() as session:
-        return await RoomsRepository(session).get_all()
+async def get_rooms(
+    db: DBDep,
+    hotel_id: int
+):
+    return await db.rooms.get_filtered(hotel_id=hotel_id)
+
+@router.get("/{hotel_id}/rooms/{room_id}")
+async def get_room(
+    db: DBDep,
+    hotel_id: int,
+    room_id: int
+):
+    return await db.rooms.get_one_or_none(id=room_id, hotel_id=hotel_id)
 
 @router.post("/{hotel_id}/rooms")
 async def create_room(
+    db: DBDep,
     hotel_id: int,
     room_data: RoomsAddRequest = Body(openapi_examples={
         "1": {"summary": "Люкс", "value": {
@@ -25,8 +34,43 @@ async def create_room(
     })
 ):
     _room_data = RoomsAdd(hotel_id= hotel_id, **room_data.model_dump())
-    async with async_session_maker() as session:
-        room = await RoomsRepository(session).add(_room_data)
-        await session.commit()
+    room = await db.rooms.add(_room_data)
+    await db.commit()
     return {"status": "ok", "data": room}    
+
+@router.delete("/{hotel_id}/rooms/{room_id}")
+async def del_rooms(
+    db: DBDep,
+    hotel_id: int,
+    room_id: int
+):
+    await db.rooms.delete(id=room_id, hotel_id=hotel_id)
+    await db.commit()
+    return {"status": "ok"}
+
+@router.put("/{hotel_id}/rooms/{room_id}")
+async def edit_room(
+    db: DBDep,
+    hotel_id: int,
+    room_id: int,
+    room_new_data: RoomsAddRequest
+):
+    _room_data = RoomsAdd(hotel_id= hotel_id, **room_new_data.model_dump())
+    await db.rooms.edit(_room_data, id= room_id, hotel_id=hotel_id)
+    await db.commit()
     
+    return {"status": "ok"}
+
+@router.patch("/{hotel_id}/rooms/{room_id}")
+async def edit_room_params(
+    db: DBDep,
+    hotel_id: int,
+    room_id: int,
+    room_new_data: RoomsPatchRequest
+):
+    _room_data = RoomsPatch(hotel_id= hotel_id, **room_new_data.model_dump(exclude_unset=True))
+    await db.rooms.edit(_room_data, is_patch=True, id= room_id, hotel_id=hotel_id)
+    await db.commit()
+    
+    return {"status": "ok"}
+

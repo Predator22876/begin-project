@@ -1,6 +1,7 @@
 from typing import Annotated
 
-from fastapi import Depends, Query, HTTPException, Request
+from fastapi import Depends, Query, HTTPException
+from starlette.requests import Request
 from pydantic import BaseModel
 
 from src.utils.db_manager import DBManager
@@ -13,8 +14,7 @@ class PaginationParams(BaseModel):
 
 
 PaginationDep = Annotated[PaginationParams, Depends()]
-         
-                          
+
 def get_token(request: Request) -> str:
     token = request.cookies.get("access_token", None)
     if not token:

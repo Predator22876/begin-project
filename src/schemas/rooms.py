@@ -22,8 +22,15 @@ class Room(RoomsAdd):
     model_config = ConfigDict(from_attributes= True)
 
 
-class RoomsPATCH(BaseModel):
-    hotel_id: int = None
+class RoomsPatchRequest(BaseModel):
+    title: str = None
+    description: str | None = None
+    price: int = None
+    quantity: int = None
+
+
+class RoomsPatch(BaseModel):
+    hotel_id: int
     title: str = None
     description: str | None = None
     price: int = None

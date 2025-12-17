@@ -22,6 +22,13 @@ async def get_hotels(
         offset= (pagination.page - 1) * per_page
     )
             
+@router.get("/{hotel_id}")
+async def get_hotel(
+    db: DBDep,
+    hotel_id: int
+):
+    return await db.hotels.get_one_or_none(id=hotel_id)
+
 @router.post("")
 async def create_hotel(
         db: DBDep,
@@ -62,6 +69,7 @@ async def edit_hotel(
     return {"status": "ok"}
 
 @router.patch("/{id}")
+
 async def change_param(
     db: DBDep,
     hotel_id: int,
@@ -77,4 +85,4 @@ async def get_hotel(
     db: DBDep,
     hotel_id: int
 ):
-    await db.hotels.get_one_or_none(id= hotel_id)
+    return await db.hotels.get_one_or_none(id=hotel_id)
