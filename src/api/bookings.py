@@ -6,7 +6,7 @@ from src.api.dependencies import DBDep, UserIdDep
 
 router = APIRouter(prefix="/bookings", tags=["Бронирование"])
 
-@router.post("/{room_id}")
+@router.post("")
 async def create_booking(
     db: DBDep,
     user_id: UserIdDep,
@@ -23,3 +23,17 @@ async def create_booking(
     await db.commit()
     
     return {"status": "OK", "data": booking}
+
+@router.get("")
+async def get_booking(
+    db: DBDep,
+):
+    return await db.bookings.get_all()
+
+@router.get("/me")
+async def get_user_bookings(
+    db: DBDep,
+    user_id: UserIdDep
+):
+    return await db.bookings.get_filtered(user_id=user_id)
+    

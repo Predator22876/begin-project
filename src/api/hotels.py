@@ -6,6 +6,24 @@ from src.schemas.hotels import HotelAdd, HotelPATCH
 
 router = APIRouter(prefix="/hotels", tags= ["Отели"])
 
+@router.post("")
+async def create_hotel(
+        db: DBDep,
+        hotel_data: HotelAdd = Body(openapi_examples= {
+            "1": {"summary": "Сочи", "value": {
+                "title": "Отель Rich 5 звезд у моря",
+                "location": "Сочи, ул Моря, 1", 
+            }},
+            "2": {"summary": "Дубай", "value": {
+                "title": "Отель DubaiPlaza у фонтана",
+                "location": "Дубай, ул Шейха, 3",
+            }}
+            })
+):
+    hotel = await db.hotels.add(hotel_data)
+
+    return {"status": "ok", "data": hotel}
+
 
 @router.get("")
 async def get_hotels(
@@ -29,33 +47,7 @@ async def get_hotel(
 ):
     return await db.hotels.get_one_or_none(id=hotel_id)
 
-@router.post("")
-async def create_hotel(
-        db: DBDep,
-        hotel_data: HotelAdd = Body(openapi_examples= {
-            "1": {"summary": "Сочи", "value": {
-                "title": "Отель Rich 5 звезд у моря",
-                "location": "Сочи, ул Моря, 1", 
-            }},
-            "2": {"summary": "Дубай", "value": {
-                "title": "Отель DubaiPlaza у фонтана",
-                "location": "Дубай, ул Шейха, 3",
-            }}
-            })
-):
-    hotel = await db.hotels.add(hotel_data)
 
-    return {"status": "ok", "data": hotel}
-    
-@router.delete("/{hotel_id}")
-async def del_hotels(
-    db: DBDep,
-    hotel_id: int
-):
-    await db.hotels.delete(id=hotel_id)
-    await db.commit()
-    
-    return {"status": "ok"}
 
 @router.put("/{hotel_id}")
 async def edit_hotel(
@@ -67,6 +59,7 @@ async def edit_hotel(
     await db.commit()
 
     return {"status": "ok"}
+
 
 @router.patch("/{id}")
 
@@ -80,3 +73,13 @@ async def change_param(
         
     return {"status": "ok"}
 
+
+@router.delete("/{hotel_id}")
+async def del_hotels(
+    db: DBDep,
+    hotel_id: int
+):
+    await db.hotels.delete(id=hotel_id)
+    await db.commit()
+    
+    return {"status": "ok"}

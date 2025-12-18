@@ -5,21 +5,6 @@ from src.api.dependencies import DBDep
 
 router = APIRouter(prefix= "/hotels", tags= ["Номера"])
 
-@router.get("/{hotel_id}/rooms")
-async def get_rooms(
-    db: DBDep,
-    hotel_id: int
-):
-    return await db.rooms.get_filtered(hotel_id=hotel_id)
-
-@router.get("/{hotel_id}/rooms/{room_id}")
-async def get_room(
-    db: DBDep,
-    hotel_id: int,
-    room_id: int
-):
-    return await db.rooms.get_one_or_none(id=room_id, hotel_id=hotel_id)
-
 @router.post("/{hotel_id}/rooms")
 async def create_room(
     db: DBDep,
@@ -36,17 +21,25 @@ async def create_room(
     _room_data = RoomsAdd(hotel_id= hotel_id, **room_data.model_dump())
     room = await db.rooms.add(_room_data)
     await db.commit()
-    return {"status": "ok", "data": room}    
+    return {"status": "ok", "data": room}
 
-@router.delete("/{hotel_id}/rooms/{room_id}")
-async def del_rooms(
+  
+@router.get("/{hotel_id}/rooms")
+async def get_rooms(
+    db: DBDep,
+    hotel_id: int
+):
+    return await db.rooms.get_filtered(hotel_id=hotel_id)
+
+@router.get("/{hotel_id}/rooms/{room_id}")
+async def get_room(
     db: DBDep,
     hotel_id: int,
     room_id: int
 ):
-    await db.rooms.delete(id=room_id, hotel_id=hotel_id)
-    await db.commit()
-    return {"status": "ok"}
+    return await db.rooms.get_one_or_none(id=room_id, hotel_id=hotel_id)
+
+
 
 @router.put("/{hotel_id}/rooms/{room_id}")
 async def edit_room(
@@ -61,6 +54,7 @@ async def edit_room(
     
     return {"status": "ok"}
 
+
 @router.patch("/{hotel_id}/rooms/{room_id}")
 async def edit_room_params(
     db: DBDep,
@@ -74,3 +68,13 @@ async def edit_room_params(
     
     return {"status": "ok"}
 
+
+@router.delete("/{hotel_id}/rooms/{room_id}")
+async def del_rooms(
+    db: DBDep,
+    hotel_id: int,
+    room_id: int
+):
+    await db.rooms.delete(id=room_id, hotel_id=hotel_id)
+    await db.commit()
+    return {"status": "ok"}
