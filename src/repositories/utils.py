@@ -9,7 +9,7 @@ from src.models.rooms import RoomsOrm
 def rooms_ids_for_booking(
         date_from: date,
         date_to: date,
-        hotel_id: int | None
+        hotel_id: int | None = None
 ):
     rooms_count = (
             select(BookingsOrm.room_id, func.count("*").label("rooms_booked"))
@@ -51,9 +51,9 @@ def rooms_ids_for_booking(
         .select_from(rooms_left_table)
         .filter(
             rooms_left_table.c.rooms_left > 0,
-            rooms_left_table.c.room_id .in_(room_ids_for_hotel)
+            rooms_left_table.c.room_id.in_(room_ids_for_hotel)
         )
     )
 
     print(rooms_ids_to_get.compile(bind=engine, compile_kwargs={"literal_binds": True}))
-    
+    return rooms_ids_to_get
