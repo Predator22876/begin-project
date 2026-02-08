@@ -38,6 +38,10 @@ class BaseRepository:
         item = result.scalars().one()
         return self.schema.model_validate(item, from_attributes= True)
     
+    async def add_bulk(self, data: BaseModel):
+        add_data_stmt = insert(self.model).values([item.model_dump() for item in data])
+        await self.session.execute(add_data_stmt)
+
     async def edit(self, data: BaseModel, is_patch: bool = False, **filter_by):
         edit_stmt = (
             update(self.model).
