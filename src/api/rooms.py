@@ -16,17 +16,16 @@ async def create_room(
             "title": "Лучший номер ever",
             "price": 50000,
             "description": "Номер крутой",
-            "quantity": 3
+            "quantity": 3,
+            "facilities_ids": []
         }}
     })
 ):
     _room_data = RoomsAdd(hotel_id= hotel_id, **room_data.model_dump())
     room = await db.rooms.add(_room_data)
 
-    rooms_facilities_data = [RoomsFacilitiesAdd(
-        room_id=room.id, 
-        facilities_id=f_id
-    ) for f_id in room_data.facilities_ids]
+    if room_data.facilities_ids:
+        rooms_facilities_data = [RoomsFacilitiesAdd(room_id=room.id, facilities_id=f_id) for f_id in room_data.facilities_ids]
 
     await db.rooms_facilities.add_bulk(rooms_facilities_data)
     await db.commit()
@@ -59,8 +58,8 @@ async def edit_room(
 ):
     _room_data = RoomsAdd(hotel_id= hotel_id, **room_new_data.model_dump())
     await db.rooms.edit(_room_data, id= room_id, hotel_id=hotel_id)
+    await db.rooms_facilities.set_room_facilities(room_id, facilities_ids=room_new_data.facilities_ids)
     
-
     await db.commit()
     
     return {"status": "ok"}
@@ -73,8 +72,12 @@ async def edit_room_params(
     room_id: int,
     room_new_data: RoomsPatchRequest
 ):
-    _room_data = RoomsPatch(hotel_id= hotel_id, **room_new_data.model_dump(exclude_unset=True))
+    _room_data_dict = room_new_data.model_dump(exclude_unset=True)
+    _room_data = RoomsPatch(hotel_id= hotel_id, **_room_data_dict)
     await db.rooms.edit(_room_data, is_patch=True, id= room_id, hotel_id=hotel_id)
+    if "facilities_ids" in _room_data_dict:
+        await db.rooms_facilities.set_room_facilities(room_id, facilities_ids=_room_data_dict["facilities_ids"])
+        
     await db.commit()
     
     return {"status": "ok"}

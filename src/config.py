@@ -8,7 +8,6 @@ class Settings(BaseSettings):
     DB_PORT: int
     DB_USER: str
     DB_PASS: str
-    DB_NAME: str
     
     @property
     def DB_URL(self):
@@ -23,3 +22,5 @@ class Settings(BaseSettings):
     
 
 settings = Settings()
+
+print(settings.DB_URL)
