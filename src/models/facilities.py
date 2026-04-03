@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey
 
 from src.database import Base
@@ -7,6 +7,11 @@ class FacilitiesOrm(Base):
     __tablename__ = "facilities"
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str]
+    
+    rooms: Mapped[list["RoomsOrm"]] = relationship(
+        back_populates="facilities",
+        secondary="rooms_facilities"
+    )
 
 
 class RoomsFacilitiesOrm(Base):
