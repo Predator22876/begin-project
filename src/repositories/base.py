@@ -2,10 +2,12 @@ from fastapi import HTTPException
 from pydantic import BaseModel
 from sqlalchemy import delete, insert, select, update
 
+from src.repositories.mappers.base import DataMapper
+
 
 class BaseRepository:
     model = None
-    schema: BaseModel = None
+    mapper: DataMapper = None
     
     def __init__(self, session):
         self.session = session
@@ -18,7 +20,7 @@ class BaseRepository:
         )
         result = await self.session.execute(query)
             
-        return [self.schema.model_validate(item, from_attributes= True) for item in result.scalars().all()]
+        return [self.mapper.map_to_domain_entity(item) for item in result.scalars().all()]
     
     async def get_all(self, *args, **kwargs):
         return await self.get_filtered()
@@ -30,13 +32,13 @@ class BaseRepository:
         item = result.scalars().one_or_none()
         if item is None:
             return None
-        return self.schema.model_validate(item, from_attributes= True)
+        return self.mapper.map_to_domain_entity(item)
     
     async def add(self, data: BaseModel):
         add_data_stmt = insert(self.model).values(**data.model_dump()).returning(self.model)
         result = await self.session.execute(add_data_stmt)
         item = result.scalars().one()
-        return self.schema.model_validate(item, from_attributes= True)
+        return self.mapper.map_to_domain_entity(item)
     
     async def add_bulk(self, data: list[BaseModel]):
         add_data_stmt = insert(self.model).values([item.model_dump() for item in data])
@@ -62,5 +64,5 @@ class BaseRepository:
 
         if item is None:
             raise HTTPException(status_code=404, detail="Отель не найден") 
-        return self.schema.model_validate(item, from_attributes= True)
+        return self.mapper.map_to_domain_entity(item)
         
