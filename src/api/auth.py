@@ -18,7 +18,7 @@ async def register_user(
         first_name=data.first_name,
         last_name=data.last_name
     )
-    db.users.add(new_user_data)
+    await db.users.add(new_user_data)
     await db.commit()
         
     return {"status": "OK"}
