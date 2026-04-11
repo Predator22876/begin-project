@@ -46,7 +46,7 @@ async def ac():
     ) as ac:
         yield ac
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="session", autouse=True)
 async def register_user(setup_database, ac):
     await ac.post(
         "/auth/register",
