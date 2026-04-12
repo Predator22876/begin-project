@@ -77,5 +77,5 @@ async def authenticated_ac(ac, register_user):
             "password": "1234",
         },
     )
-    assert ac.cookies("access_token")
+    assert ac.cookies["access_token"]
     yield ac
