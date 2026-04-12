@@ -37,4 +37,3 @@ async def test_booking_crud(db, register_user):
     await db.bookings.delete(id=booking.id)   
     booking = await db.bookings.get_one_or_none(id=new_booking.id)
     assert not booking
-
