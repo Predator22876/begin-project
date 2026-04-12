@@ -18,11 +18,11 @@ async def create_facilities(
     facilities = await db.facilities.add(facilities_data)
     await db.commit()
     
-    test_task.delay()
+    # test_task.delay()
 
     return {"status": "ok", "data": facilities}
 
 @router.get("")
-@cache(expire=10)
+# @cache(expire=10)
 async def get_facilities(db: DBDep):
     return await db.facilities.get_all()
