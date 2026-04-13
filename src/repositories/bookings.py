@@ -1,6 +1,5 @@
 from fastapi import HTTPException
-from pydantic import BaseModel
-from sqlalchemy import select, insert
+from sqlalchemy import select
 from datetime import date
 
 from src.repositories.utils import rooms_ids_for_booking
