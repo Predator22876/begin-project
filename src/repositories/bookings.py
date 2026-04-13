@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 from pydantic import BaseModel
 from sqlalchemy import select, insert
 from datetime import date
@@ -35,4 +36,4 @@ class BookingRepository(BaseRepository):
             new_book = await self.add(data)
             return new_book
         else:
-            raise Exception
+            raise HTTPException(500)
