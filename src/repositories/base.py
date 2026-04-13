@@ -55,14 +55,7 @@ class BaseRepository:
     async def delete(self, **filter_by):
         delete_stmt = (
             delete(self.model).
-            filter_by(**filter_by).
-            returning(self.model)
+            filter_by(**filter_by)
         )
-        
-        result = await self.session.execute(delete_stmt)
-        item = result.scalars().one()
-
-        if item is None:
-            raise HTTPException(status_code=404, detail="Отель не найден") 
-        return self.mapper.map_to_domain_entity(item)
+        await self.session.execute(delete_stmt)
         
