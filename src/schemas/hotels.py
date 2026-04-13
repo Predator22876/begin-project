@@ -8,7 +8,7 @@ class HotelAdd(BaseModel):
 
 class Hotel(HotelAdd):
     id: int
-    
+
 
 class HotelPatch(BaseModel):
     title: str | None = None

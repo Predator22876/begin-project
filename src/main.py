@@ -16,17 +16,17 @@ from src.api.images import router as router_images
 
 from src.init import redis_manager
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    #При старте приложения
+    # При старте приложения
     await redis_manager.connect()
     FastAPICache.init(RedisBackend(redis_manager.redis), prefix="fastapi-cache")
     yield
     await redis_manager.close()
-    
-    #При выключении или перезагрузке
-    
-    
+
+    # При выключении или перезагрузке
+
 
 app = FastAPI(lifespan=lifespan)
 
@@ -37,9 +37,11 @@ app.include_router(router_bookings)
 app.include_router(router_facilities)
 app.include_router(router_images)
 
+
 @app.get("/", include_in_schema=False)
 async def root():
     return RedirectResponse(url="/docs")
 
+
 if __name__ == "__main__":
-    uvicorn.run("src.main:app", reload= True)
+    uvicorn.run("src.main:app", reload=True)

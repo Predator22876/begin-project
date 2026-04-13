@@ -10,5 +10,5 @@ __all__ = [
     "RoomsOrm",
     "UsersOrm",
     "BookingsOrm",
-    "FacilitiesOrm", 
+    "FacilitiesOrm",
 ]

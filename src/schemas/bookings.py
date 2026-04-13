@@ -24,4 +24,4 @@ class Booking(BaseModel):
     date_to: date
     price: int
 
-    model_config = ConfigDict(from_attributes= True)
+    model_config = ConfigDict(from_attributes=True)
