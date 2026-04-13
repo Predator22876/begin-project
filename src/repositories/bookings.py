@@ -2,6 +2,7 @@ from fastapi import HTTPException
 from sqlalchemy import select
 from datetime import date
 
+from src.exceptions import AllRoomsAreBookedException
 from src.repositories.utils import rooms_ids_for_booking
 from src.repositories.base import BaseRepository
 from src.models.bookings import BookingsOrm
@@ -28,7 +29,6 @@ class BookingRepository(BaseRepository):
         rooms_ids_to_book: list[int] = rooms_ids_to_book_res.scalars().all()
 
         if data.room_id in rooms_ids_to_book:
-            new_book = await self.add(data)
-            return new_book
-        else:
-            raise HTTPException(500)
+            new_booking = await self.add(data)
+            return new_booking
+        raise AllRoomsAreBookedException
