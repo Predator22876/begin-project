@@ -1,3 +1,4 @@
+from typing import Sequence
 from pydantic import BaseModel
 from sqlalchemy import delete, insert, select, update
 
@@ -39,7 +40,7 @@ class BaseRepository:
         item = result.scalars().one()
         return self.mapper.map_to_domain_entity(item)
 
-    async def add_bulk(self, data: list[BaseModel]):
+    async def add_bulk(self, data: Sequence[BaseModel]):
         add_data_stmt = insert(self.model).values([item.model_dump() for item in data])
         await self.session.execute(add_data_stmt)
 

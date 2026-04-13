@@ -1,5 +1,6 @@
 # ruff: noqa: E402
 import json
+from typing import AsyncGenerator
 import pytest
 from unittest import mock
 from httpx import AsyncClient, ASGITransport
@@ -27,7 +28,7 @@ async def get_db_null_pool():
 
 
 @pytest.fixture()
-async def db() -> DBManager:
+async def db() -> AsyncGenerator[DBManager]:
     async for db in get_db_null_pool():
         yield db
 
