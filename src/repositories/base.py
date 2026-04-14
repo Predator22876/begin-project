@@ -1,3 +1,4 @@
+import logging
 from typing import Sequence
 from pydantic import BaseModel
 from sqlalchemy import delete, insert, select, update
@@ -53,9 +54,11 @@ class BaseRepository:
             item = result.scalars().one()
             return self.mapper.map_to_domain_entity(item)
         except IntegrityError as ex:
+            logging.error(f"Не удалось добавить данные в бд, входные данные {data}, тип ошибки:{type(ex.orig.__cause__)=}")
             if isinstance(ex.orig.__cause__, UniqueViolationError):
                 raise UserAlreadyExists from ex
             else:
+                logging.error("Незнакомая ошибка, не удалось добавить данные в бд, входные данные {data}, тип ошибки:{type(ex.orig.__cause__)=}")
                 raise ex
 
     async def add_bulk(self, data: Sequence[BaseModel]):

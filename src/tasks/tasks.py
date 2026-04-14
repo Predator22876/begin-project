@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from time import sleep
 import os
 from PIL import Image
@@ -16,6 +17,7 @@ def test_task():
 
 @celery_instance.task
 def resize_image(image_path: str, quality=85):
+    logging.debug(f"Вызывается функция image_path c {image_path=}")
     # Проверяем, существует ли исходный файл
     sizes = [200, 500, 1000, 10000]
     output_dir = "src/static/images"
@@ -47,7 +49,7 @@ def resize_image(image_path: str, quality=85):
                 # Для остальных форматов сохраняем как есть
                 img_copy.save(output_path)
 
-            print(f"Сохранено: {output_path} (размер: {img_copy.size})")
+            logging.info(f"Сохранено: {output_path} (размер: {img_copy.size})")
 
     print("Готово!")
 
@@ -56,7 +58,7 @@ async def get_bookings_with_today_checkin_helper():
     print("ФУНКЦИЯ НАЧАЛАСЬ")
     async with DBManager(session_factory=async_session_maker) as db:
         bookings = await db.bookings.get_bookings_with_today_checkin()
-        print(f"{bookings}")
+        logging.debug(f"{bookings}")
 
 
 @celery_instance.task(name="booking_today_checkin")

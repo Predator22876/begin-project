@@ -6,6 +6,9 @@ from fastapi_cache.backends.redis import RedisBackend
 from fastapi import FastAPI
 import uvicorn
 from fastapi.responses import RedirectResponse
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 from src.api.auth import router as router_auth
 from src.api.hotels import router as router_hotels
@@ -22,6 +25,7 @@ async def lifespan(app: FastAPI):
     # При старте приложения
     await redis_manager.connect()
     FastAPICache.init(RedisBackend(redis_manager.redis), prefix="fastapi-cache")
+    logging.info("FastAPI cache initialized")
     yield
     await redis_manager.close()
 
