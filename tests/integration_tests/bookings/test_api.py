@@ -11,7 +11,7 @@ from tests.conftest import get_db_null_pool
         (1, "2026-04-12", "2026-04-13", 200),
         (1, "2026-04-12", "2026-04-13", 200),
         (1, "2026-04-12", "2026-04-13", 200),
-        (1, "2026-04-12", "2026-04-13", 500),
+        (1, "2026-04-12", "2026-04-13", 409),
     ],
 )
 async def test_add_booking(room_id, date_from, date_to, status_code, authenticated_ac):

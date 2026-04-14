@@ -21,7 +21,7 @@ async def register_user(data: UserRequestAddWithName, db: DBDep):
         await db.users.add(new_user_data)
         await db.commit()
     except UserAlreadyExists as ex:  # noqa
-        raise HTTPException(status_code=409, detail = ex.detail)
+        raise HTTPException(status_code=409, detail=ex.detail)
 
     return {"status": "OK"}
 

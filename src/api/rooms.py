@@ -1,7 +1,12 @@
 from fastapi import APIRouter, Body, HTTPException, Query
 from datetime import date
 
-from src.exceptions import CheckInDateEqualCheckOutDate, CheckInDateLaterThanCheckOutDate, HotelNotFoundHTTPException, ObjectNotFoundException, RoomNotFoundHTTPException, check_date_to_after_date_from
+from src.exceptions import (
+    HotelNotFoundHTTPException,
+    ObjectNotFoundException,
+    RoomNotFoundHTTPException,
+    check_date_to_after_date_from,
+)
 from src.schemas.rooms import RoomsAdd, RoomsAddRequest, RoomsPatchRequest, RoomsPatch
 from src.schemas.facilities import RoomsFacilitiesAdd
 from src.api.dependencies import DBDep
@@ -30,7 +35,7 @@ async def create_room(
 ):
     try:
         await db.hotels.get_one(id=hotel_id)
-    except ObjectNotFoundException as ex:
+    except ObjectNotFoundException:
         raise HotelNotFoundHTTPException
     _room_data = RoomsAdd(hotel_id=hotel_id, **room_data.model_dump())
     room = await db.rooms.add(_room_data)
@@ -66,13 +71,14 @@ async def get_room(db: DBDep, hotel_id: int, room_id: int):
     except ObjectNotFoundException as ex:
         raise HTTPException(status_code=404, detail=ex.detail)
 
+
 @router.put("/{hotel_id}/rooms/{room_id}")
 async def edit_room(
     db: DBDep, hotel_id: int, room_id: int, room_new_data: RoomsAddRequest
 ):
     try:
         await db.hotels.get_one(id=hotel_id)
-    except ObjectNotFoundException as ex:
+    except ObjectNotFoundException:
         raise HotelNotFoundHTTPException
     try:
         await db.rooms.get_one(id=room_id)
@@ -95,7 +101,7 @@ async def edit_room_params(
 ):
     try:
         await db.hotels.get_one(id=hotel_id)
-    except ObjectNotFoundException as ex:
+    except ObjectNotFoundException:
         raise HotelNotFoundHTTPException
     try:
         await db.rooms.get_one(id=room_id)

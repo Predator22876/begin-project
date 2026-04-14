@@ -1,6 +1,5 @@
 from sqlalchemy import select, func
 
-from src.exceptions import CheckInDateEqualCheckOutDate, CheckInDateLaterThanCheckOutDate, ObjectNotFoundException
 from src.repositories.mappers.mappers import HotelDataMapper
 from src.models.hotels import HotelsOrm
 from src.repositories.base import BaseRepository

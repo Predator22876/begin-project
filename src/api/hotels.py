@@ -1,7 +1,11 @@
-from fastapi import Body, HTTPException, Query, APIRouter
+from fastapi import Body, Query, APIRouter
 from datetime import date
 
-from src.exceptions import CheckInDateEqualCheckOutDate, CheckInDateLaterThanCheckOutDate, HotelNotFoundHTTPException, ObjectNotFoundException, check_date_to_after_date_from
+from src.exceptions import (
+    HotelNotFoundHTTPException,
+    ObjectNotFoundException,
+    check_date_to_after_date_from,
+)
 from src.api.dependencies import PaginationDep, DBDep
 from src.schemas.hotels import HotelAdd, HotelPatch
 
@@ -58,11 +62,12 @@ async def get_hotels(
         date_to=date_to,
     )
 
+
 @router.get("/{hotel_id}")
 async def get_hotel(db: DBDep, hotel_id: int):
     try:
         return await db.hotels.get_one(id=hotel_id)
-    except ObjectNotFoundException as ex:
+    except ObjectNotFoundException:
         raise HotelNotFoundHTTPException
 
 
