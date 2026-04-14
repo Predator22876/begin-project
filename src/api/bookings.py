@@ -15,7 +15,7 @@ async def create_booking(
     try:
         room = await db.rooms.get_one(id=booking_data.room_id)
     except ObjectNotFoundException as ex:
-        raise HTTPException(status_code=400, detail=ex.detail)
+        raise HTTPException(status_code=404, detail=ex.detail)
     room_price: int = room.price
     _booking_data = BookingAdd(
         user_id=user_id, 

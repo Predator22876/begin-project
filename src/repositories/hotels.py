@@ -1,5 +1,6 @@
 from sqlalchemy import select, func
 
+from src.exceptions import CheckInDateEqualCheckOutDate, CheckInDateLaterThanCheckOutDate, ObjectNotFoundException
 from src.repositories.mappers.mappers import HotelDataMapper
 from src.models.hotels import HotelsOrm
 from src.repositories.base import BaseRepository
@@ -40,7 +41,6 @@ class HotelsRepository(BaseRepository):
             )
         query = query.limit(limit).offset(offset)
         result = await self.session.execute(query)
-
         return [
             self.mapper.map_to_domain_entity(hotel) for hotel in result.scalars().all()
         ]
