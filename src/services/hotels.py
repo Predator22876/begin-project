@@ -1,6 +1,6 @@
 from datetime import date
-from src.schemas.hotels import HotelAdd, HotelPatch
-from src.exceptions import check_date_to_after_date_from
+from src.schemas.hotels import Hotel, HotelAdd, HotelPatch
+from src.exceptions import HotelNotFoundException, ObjectNotFoundException, check_date_to_after_date_from
 from src.services.base import BaseService
 
 
@@ -42,3 +42,9 @@ class HotelService(BaseService):
     async def delete_hotels(self, id: int):
         await self.db.hotels.delete(id=id)
         await self.db.commit()
+    
+    async def get_hotel_with_check(self, hotel_id: int) -> Hotel:
+        try:
+            await self.db.hotels.get_one(id=hotel_id)
+        except ObjectNotFoundException as ex:
+            raise HotelNotFoundException

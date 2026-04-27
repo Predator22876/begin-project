@@ -13,20 +13,23 @@ class MyAppException(Exception):
 class ObjectNotFoundException(MyAppException):
     detail = "Объект не найлен"
 
+class HotelNotFoundException(ObjectNotFoundException):
+    detail = "Отель не найлен"
 
-class AllRoomsAreBookedException(MyAppException):
+class RoomNotFoundException(ObjectNotFoundException):
+    detail = "Номер не найлен"
+
+class AllRoomsAreBookedException(ObjectNotFoundException):
     detail = "Не осталось свободных номеров"
 
-
-class UserAlreadyExists(MyAppException):
+class UserAlreadyExists(ObjectNotFoundException):
     detail = "Пользователь уже зарегистрирован"
 
-
-class CheckInDateLaterThanCheckOutDate(MyAppException):
+class CheckInDateLaterThanCheckOutDate(ObjectNotFoundException):
     detail = "Дата заезда позже даты выезда"
 
 
-class CheckInDateEqualCheckOutDate(MyAppException):
+class CheckInDateEqualCheckOutDate(ObjectNotFoundException):
     detail = "Дата заезда равна дате выезда"
 
 
