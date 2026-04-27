@@ -1,0 +1,33 @@
+from datetime import time
+from fastapi import FastAPI, HTTPException
+import uvicorn
+from pydantic import BaseModel
+
+app = FastAPI()
+
+class User(BaseModel):
+    user_id: int
+    message: str
+    
+request: User = {
+    "user_id": int,
+    "message": str
+}
+@app.post("/api/message")
+async def test(request):
+    if request.user_id < 0:
+        raise HTTPException(status_code = 422, detail = "Айди должен быть положительным")
+    if not request.message:
+        raise HTTPException(status_code = 422, detail = "Сообщение не должно быть пустым")
+    if len(request.message) > 1000:
+        raise HTTPException(status_code = 422, detail = "Сообщение не может быть больше 1000 символов")
+    return {
+        "status": "ok",
+        "user_id": request.user_id,
+        "message_length": len(request.message),
+        "timestamp": time.time()
+    }
+
+
+if __name__ == "__main__":
+    uvicorn.run("src.main:app", reload=True)

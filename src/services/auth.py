@@ -1,11 +1,12 @@
 from datetime import datetime, timezone, timedelta
+from src.services.base import BaseService
 from src.config import settings
 
 from passlib.context import CryptContext
 import jwt
 
 
-class AuthService:
+class AuthService(BaseService):
     pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
     def create_access_token(self, data: dict) -> str:
