@@ -70,7 +70,7 @@ async def main():
     
     recommendations = await get_recommendations(bookings)
 
-    dashboard = await build_dashboard(
+    await build_dashboard(
         profile,
         bookings,
         popular_hotels,

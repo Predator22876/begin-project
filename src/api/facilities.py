@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from fastapi_cache.decorator import cache
 
-from services.facilities import FacilityService
+from src.services.facilities import FacilityService
 from src.api.dependencies import DBDep
 from src.schemas.facilities import FacilitiesAdd
 
@@ -17,4 +17,4 @@ async def create_facilities(facilities_data: FacilitiesAdd, db: DBDep):
 @router.get("")
 @cache(expire=10)
 async def get_facilities(db: DBDep):
-    return await db.facilities.get_all()
+    return await FacilityService(db).get_facilities()

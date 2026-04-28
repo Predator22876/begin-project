@@ -1,8 +1,8 @@
 from datetime import date
-from schemas.facilities import RoomsFacilitiesAdd
-from services.hotels import HotelService
+from src.schemas.facilities import RoomsFacilitiesAdd
+from src.services.hotels import HotelService
 from src.schemas.rooms import Room, RoomsAdd, RoomsAddRequest, RoomsPatch, RoomsPatchRequest
-from src.exceptions import HotelNotFoundException, ObjectNotFoundException, RoomNotFoundException, check_date_to_after_date_from
+from src.exceptions import ObjectNotFoundException, RoomNotFoundException, check_date_to_after_date_from
 from src.services.base import BaseService
 
 

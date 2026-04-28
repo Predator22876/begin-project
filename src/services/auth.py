@@ -1,4 +1,6 @@
 from datetime import datetime, timezone, timedelta
+from src.exceptions import EmailNotRegisteredException, IncorrectPasswordException, ObjectAlreadyExistsException, UserAlreadyExistsException
+from src.schemas.users import UserAdd, UserRequestAdd, UserRequestAddWithName
 from src.services.base import BaseService
 from src.config import settings
 
@@ -30,3 +32,36 @@ class AuthService(BaseService):
         return jwt.decode(
             token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
         )
+
+    async def register_user(self, data: UserRequestAddWithName):
+        hashed_password = self.hash_password(data.password)
+        new_user_data = UserAdd(
+            email=data.email,
+            hashed_password=hashed_password,
+            first_name=data.first_name,
+            last_name=data.last_name,
+        )
+        try:
+            await self.db.users.add(new_user_data)
+            await self.db.commit()
+        except ObjectAlreadyExistsException:
+            raise UserAlreadyExistsException
+
+    async def login_user(
+        self,
+        data: UserRequestAdd,
+    ):
+        user = await self.db.users.get_user_with_hashed_password(email=data.email)
+        if not user:
+            raise EmailNotRegisteredException
+        if not AuthService().verify_password(data.password, user.hashed_password):
+            raise IncorrectPasswordException
+        
+        access_token = self.create_access_token({"user_id": user.id})
+        return access_token
+    
+    async def get_me(
+        self,
+        id: int,
+    ):
+        return await self.db.users.get_one_or_none(id=id)

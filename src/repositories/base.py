@@ -5,7 +5,7 @@ from sqlalchemy import delete, insert, select, update
 from sqlalchemy.exc import NoResultFound, IntegrityError
 from asyncpg.exceptions import UniqueViolationError
 
-from src.exceptions import ObjectNotFoundException, UserAlreadyExists
+from src.exceptions import ObjectAlreadyExistsException, ObjectNotFoundException
 from src.repositories.mappers.base import DataMapper
 
 
@@ -58,7 +58,7 @@ class BaseRepository:
                 f"Не удалось добавить данные в бд, входные данные {data}, тип ошибки:{type(ex.orig.__cause__)=}"
             )
             if isinstance(ex.orig.__cause__, UniqueViolationError):
-                raise UserAlreadyExists from ex
+                raise ObjectAlreadyExistsException from ex
             else:
                 logging.error(
                     "Незнакомая ошибка, не удалось добавить данные в бд, входные данные {data}, тип ошибки:{type(ex.orig.__cause__)=}"

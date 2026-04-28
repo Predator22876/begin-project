@@ -9,6 +9,20 @@ class MyAppException(Exception):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(self.detail, *args, **kwargs)
 
+class IncorrectTokenException(MyAppException):
+    detail = "Некорректный токен"
+
+class EmailNotRegisteredException(MyAppException):
+    detail = "Пользователь с таким email не зарегистрирован"
+
+class IncorrectPasswordException(MyAppException):
+    detail = "Пароль неверный"
+
+class ObjectAlreadyExistsException(MyAppException):
+    detail = "Похожий объект уже существует"
+
+class UserAlreadyExistsException(MyAppException):
+    detail = "Пользователь уже существует"
 
 class ObjectNotFoundException(MyAppException):
     detail = "Объект не найлен"
@@ -27,7 +41,6 @@ class UserAlreadyExists(ObjectNotFoundException):
 
 class CheckInDateLaterThanCheckOutDate(ObjectNotFoundException):
     detail = "Дата заезда позже даты выезда"
-
 
 class CheckInDateEqualCheckOutDate(ObjectNotFoundException):
     detail = "Дата заезда равна дате выезда"
@@ -53,7 +66,29 @@ class HotelNotFoundHTTPException(MyAppHTTPException):
     status_code = 404
     detail = "Отель не найден"
 
-
 class RoomNotFoundHTTPException(MyAppHTTPException):
     status_code = 404
     detail = "Номер не найден"
+
+class AllRoomsAreBookedHTTPException(MyAppHTTPException):
+    status_code = 409
+    detail = "Не осталось свободных номеров"
+
+class IncorrectTokenHTTPException(MyAppHTTPException):
+    detail = "Некорректный токен"
+
+class EmailNotRegisteredHTTPException(MyAppHTTPException):
+    status_code = 401
+    detail = "Пользователь с таким email не зарегистрирован"
+
+class UserEmailAlreadyExistsHTTPException(MyAppHTTPException):
+    status_code = 409
+    detail = "Пользователь с такой почтой уже существует"
+
+class IncorrectPasswordHTTPException(MyAppHTTPException):
+    status_code = 401
+    detail = "Пароль неверный"
+
+class NoAccessTokenHTTPException(MyAppHTTPException):
+    status_code = 401
+    detail = "Вы не предоставили токен доступа"

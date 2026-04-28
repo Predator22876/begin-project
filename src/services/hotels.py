@@ -46,5 +46,5 @@ class HotelService(BaseService):
     async def get_hotel_with_check(self, hotel_id: int) -> Hotel:
         try:
             await self.db.hotels.get_one(id=hotel_id)
-        except ObjectNotFoundException as ex:
+        except ObjectNotFoundException:
             raise HotelNotFoundException

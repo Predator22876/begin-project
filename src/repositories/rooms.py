@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import selectinload
 
-from src.exceptions import RoomNotFoundException, RoomNotFoundHTTPException
+from src.exceptions import RoomNotFoundException
 from src.repositories.base import BaseRepository
 from src.models.rooms import RoomsOrm
 from src.repositories.utils import rooms_ids_for_booking
