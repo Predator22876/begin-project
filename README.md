@@ -1,34 +1,90 @@
 
+# 🚀 Запуск приложения
 
+## Первый запуск: поднять БД и кэш (один раз)
+
+Выполните эти команды только один раз. Данные в БД и кэше будут сохранены между перезапусками приложения.
+
+### Для Bash/Linux/Mac:
+
+```bash
+# Создать сеть Docker
 docker network create myNetwork
 
-docker run --name booking_db 
-    -p 6432:5432 
-    -e POSTGRES_USER=postgres 
-    -e POSTGRES_PASSWORD=postgres 
-    -e POSTGRES_DB=booking 
-    --network=myNetwork 
-    --volume pg-booking-data:/var/lib/postgresql/data 
+# Поднять PostgreSQL
+docker run --name booking_db \
+    -p 6432:5432 \
+    -e POSTGRES_USER=postgres \
+    -e POSTGRES_PASSWORD=postgres \
+    -e POSTGRES_DB=booking \
+    --network=myNetwork \
+    --volume pg-booking-data:/var/lib/postgresql/data \
     -d postgres
 
-docker run --name booking_cache 
-    -p 7379:6379
-    --network=myNetwork 
+# Поднять Redis
+docker run --name booking_cache \
+    -p 7379:6379 \
+    --network=myNetwork \
     -d redis
+```
 
-docker run --name booking_back
-    -p 8000:8000
-    --network=myNetwork 
-    booking_image
+### Для PowerShell (Windows):
 
-docker run --name booking_celery_worker
-    --network=myNetwork 
-    booking_image
-    celery --app=src.tasks.celery_app:celery_instance worker -l INFO
+```powershell
+# Создать сеть Docker
+docker network create myNetwork
 
-docker run --name booking_celery_beat
-    --network=myNetwork 
-    booking_image
-    celery --app=src.tasks.celery_app:celery_instance worker -l INFO -B
+# Поднять PostgreSQL
+docker run --name booking_db -p 6432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=booking --network=myNetwork --volume pg-booking-data:/var/lib/postgresql/data -d postgres
 
-docker build -t booking_image .  
+# Поднять Redis
+docker run --name booking_cache -p 7379:6379 --network=myNetwork -d redis
+```
+
+## Запуск приложения (многократно)
+
+После первого запуска БД и кэша, используйте Docker Compose для запуска приложения:
+
+```bash
+# Собрать и запустить все контейнеры (API + Celery)
+docker compose up --build
+
+# Или запустить в фоне (-d флаг)
+docker compose up --build -d
+
+# Посмотреть логи
+docker compose logs -f booking_back
+
+# Остановить приложение (БД и кэш останутся живы)
+docker compose down
+```
+
+## 📖 Доступ к приложению
+
+- **FastAPI Документация (Swagger)**: http://localhost:8000/docs
+- **PostgreSQL**: `localhost:6432` (пользователь: postgres, пароль: postgres)
+- **Redis**: `localhost:7379`
+
+## Очистка всего (если нужно начать заново)
+
+### Для Bash/Linux/Mac:
+
+```bash
+# Остановить и удалить все контейнеры и сеть
+docker compose down -v
+docker rm -f booking_db booking_cache 2>/dev/null
+docker network rm myNetwork 2>/dev/null
+
+# Потом повторить первый и второй пункты выше
+```
+
+### Для PowerShell (Windows):
+
+```powershell
+# Остановить и удалить все контейнеры и сеть
+docker compose down -v
+docker rm -f booking_db booking_cache
+docker network rm myNetwork
+
+# Потом повторить первый и второй пункты выше
+```  
