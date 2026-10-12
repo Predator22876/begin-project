@@ -4,13 +4,31 @@ from sqlalchemy.orm import DeclarativeBase
 
 from src.config import settings
 
+
+def get_async_session_maker():
+    engine = create_async_engine(
+        settings.DB_URL,
+        echo=True,  # для отладки SQL-запросов и ошибок
+        pool_pre_ping=True,  # проверять соединение перед использованием
+        pool_size=5,  # размер пула
+        max_overflow=10,  # дополнительных соединений при перегрузке
+        pool_recycle=3600,  # пересоздавать соединения раз в час
+    )
+    return async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+
+
+def get_async_session_maker_null_pool():
+    engine_null_pool = create_async_engine(settings.DB_URL, poolclass=NullPool)
+    return async_sessionmaker(engine_null_pool, expire_on_commit=False)
+
+
 engine = create_async_engine(
     settings.DB_URL,
-    echo=True,  # для отладки SQL-запросов и ошибок
-    pool_pre_ping=True,  # проверять соединение перед использованием
-    pool_size=5,  # размер пула
-    max_overflow=10,  # дополнительных соединений при перегрузке
-    pool_recycle=3600,  # пересоздавать соединения раз в час
+    echo=True,
+    pool_pre_ping=True,
+    pool_size=5,
+    max_overflow=10,
+    pool_recycle=3600,
 )
 engine_null_pool = create_async_engine(settings.DB_URL, poolclass=NullPool)
 
