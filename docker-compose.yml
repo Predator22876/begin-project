@@ -4,7 +4,7 @@ services:
     build:
       context: .    
     ports:
-      - "8000:8000"
+      - "7777:8000"
     networks:
       - myNetwork
     env_file:
