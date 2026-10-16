@@ -1,5 +1,5 @@
 from datetime import datetime, timezone, timedelta
-from src.exceptions import EmailNotRegisteredException, IncorrectPasswordException, ObjectAlreadyExistsException, UserAlreadyExistsException
+from src.exceptions import EmailNotRegisteredException, IncorrectPasswordException, ObjectAlreadyExistsException, UserAlreadyExistsException, EmptyPassword
 from src.schemas.users import UserAdd, UserRequestAdd, UserRequestAddWithName
 from src.services.base import BaseService
 from src.config import settings
@@ -34,6 +34,8 @@ class AuthService(BaseService):
         )
 
     async def register_user(self, data: UserRequestAddWithName):
+        if not data.password:
+            raise EmptyPassword 
         hashed_password = self.hash_password(data.password)
         new_user_data = UserAdd(
             email=data.email,

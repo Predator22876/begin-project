@@ -45,6 +45,9 @@ class CheckInDateLaterThanCheckOutDate(ObjectNotFoundException):
 class CheckInDateEqualCheckOutDate(ObjectNotFoundException):
     detail = "Дата заезда равна дате выезда"
 
+class EmptyPassword(MyAppException):
+    detail = "Поле пароль не может быть пустым"
+
 
 def check_date_to_after_date_from(date_from: date, date_to: date) -> None:
     if date_to <= date_from:
@@ -92,3 +95,7 @@ class IncorrectPasswordHTTPException(MyAppHTTPException):
 class NoAccessTokenHTTPException(MyAppHTTPException):
     status_code = 401
     detail = "Вы не предоставили токен доступа"
+
+class EmptyPasswordHTTPException(MyAppHTTPException):
+    status_code = 422
+    detail = "Поле пароль не может быть пустым"
