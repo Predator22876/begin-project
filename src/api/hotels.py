@@ -4,7 +4,9 @@ from datetime import date
 from src.services.hotels import HotelService
 from src.exceptions import (
     HotelNotFoundHTTPException,
-    ObjectNotFoundException,
+    HotelNotFoundException,
+    EmptySlotsException,
+    EmptySlotsHTTPException
 )
 from src.api.dependencies import PaginationDep, DBDep
 from src.schemas.hotels import HotelAdd, HotelPatch
@@ -60,24 +62,36 @@ async def get_hotels(
 @router.get("/{hotel_id}")
 async def get_hotel(db: DBDep, hotel_id: int):
     try:
-        return await HotelService(db).get_hotel(hotel_id)
-    except ObjectNotFoundException:
+        return await HotelService(db).get_hotel_with_check(hotel_id)
+    except HotelNotFoundException:
         raise HotelNotFoundHTTPException
 
 
 @router.put("/{hotel_id}")
 async def edit_hotel(db: DBDep, hotel_id: int, hotel_data: HotelAdd):
-    HotelService(db).edit_hotel(id=hotel_id, data=hotel_data)
-    return {"status": "ok"}
+    try:
+        await HotelService(db).edit_hotel(id=hotel_id, data=hotel_data)
+        return {"status": "ok"}
+    except HotelNotFoundException:
+        raise HotelNotFoundHTTPException
 
 
 @router.patch("/{hotel_id}")
 async def change_param(db: DBDep, hotel_id: int, hotel_data: HotelPatch):
-    HotelService(db).change_params(id=hotel_id, data=hotel_data)
-    return {"status": "ok"}
+    try:
+        await HotelService(db).change_params(id=hotel_id, data=hotel_data)
+        return {"status": "ok"}
+    except EmptySlotsException:
+        raise EmptySlotsHTTPException
+    except HotelNotFoundException:
+        raise HotelNotFoundHTTPException
+
 
 
 @router.delete("/{hotel_id}")
 async def del_hotels(db: DBDep, hotel_id: int):
-    HotelService(db).delete_hotels(id=hotel_id)
-    return {"status": "ok"}
+    try:
+        await HotelService(db).delete_hotels(id=hotel_id)
+        return {"status": "ok"}
+    except HotelNotFoundException:
+        raise HotelNotFoundHTTPException

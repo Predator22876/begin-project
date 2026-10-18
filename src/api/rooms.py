@@ -7,6 +7,8 @@ from src.exceptions import (
     HotelNotFoundHTTPException,
     RoomNotFoundException,
     RoomNotFoundHTTPException,
+    EmptySlotsException,
+    EmptySlotsHTTPException
 )
 from src.schemas.rooms import RoomsAddRequest, RoomsPatchRequest
 from src.api.dependencies import DBDep
@@ -53,7 +55,7 @@ async def get_rooms(
 @router.get("/{hotel_id}/rooms/{room_id}")
 async def get_room(db: DBDep, hotel_id: int, room_id: int):
     try:
-        RoomServise(db).get_rooms(hotel_id=hotel_id, id=room_id)
+        return await RoomServise(db).get_room(hotel_id=hotel_id, id=room_id)
     except RoomNotFoundException:
         raise RoomNotFoundHTTPException
 
@@ -62,28 +64,37 @@ async def get_room(db: DBDep, hotel_id: int, room_id: int):
 async def edit_room(
     db: DBDep, hotel_id: int, room_id: int, room_new_data: RoomsAddRequest
 ):
-    await RoomServise(db).edit_room(
-        hotel_id=hotel_id,
-        id = room_id,
-        new_data=room_new_data,
-    )
-    return {"status": "ok"}
-
+    try:
+        await RoomServise(db).edit_room(
+            hotel_id=hotel_id,
+            id = room_id,
+            new_data=room_new_data,
+        )
+        return {"status": "ok"}
+    except RoomNotFoundException:
+        raise RoomNotFoundHTTPException
 
 @router.patch("/{hotel_id}/rooms/{room_id}")
 async def edit_room_params(
     db: DBDep, hotel_id: int, room_id: int, room_new_data: RoomsPatchRequest
 ):
-    await RoomServise(db).edit_room_params(
-        hotel_id=hotel_id,
-        id = room_id,
-        new_data=room_new_data,
-    )
-
-    return {"status": "ok"}
+    try:
+        await RoomServise(db).edit_room_params(
+            hotel_id=hotel_id,
+            id = room_id,
+            new_data=room_new_data,
+        )
+        return {"status": "ok"}
+    except RoomNotFoundException:
+        raise RoomNotFoundHTTPException
+    except EmptySlotsException:
+        raise EmptySlotsHTTPException
 
 
 @router.delete("/{hotel_id}/rooms/{room_id}")
 async def del_rooms(db: DBDep, hotel_id: int, room_id: int):
-    await RoomServise(db).delete_rooms(hotel_id=hotel_id, id=room_id)
-    return {"status": "ok"}
+    try:
+        await RoomServise(db).delete_rooms(hotel_id=hotel_id, id=room_id)
+        return {"status": "ok"}
+    except RoomNotFoundException:
+        raise RoomNotFoundHTTPException

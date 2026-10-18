@@ -48,6 +48,9 @@ class CheckInDateEqualCheckOutDate(ObjectNotFoundException):
 class EmptyPassword(MyAppException):
     detail = "Поле пароль не может быть пустым"
 
+class EmptySlotsException(MyAppException):
+    detail = "Поля не могут быть пустым"
+
 
 def check_date_to_after_date_from(date_from: date, date_to: date) -> None:
     if date_to <= date_from:
@@ -99,3 +102,7 @@ class NoAccessTokenHTTPException(MyAppHTTPException):
 class EmptyPasswordHTTPException(MyAppHTTPException):
     status_code = 422
     detail = "Поле пароль не может быть пустым"
+
+class EmptySlotsHTTPException(MyAppHTTPException):
+    status_code = 422
+    detail = "Поля не могут быть пустым"

@@ -2,7 +2,7 @@ from datetime import date
 from src.schemas.facilities import RoomsFacilitiesAdd
 from src.services.hotels import HotelService
 from src.schemas.rooms import Room, RoomsAdd, RoomsAddRequest, RoomsPatch, RoomsPatchRequest
-from src.exceptions import ObjectNotFoundException, RoomNotFoundException, check_date_to_after_date_from
+from src.exceptions import ObjectNotFoundException, RoomNotFoundException, check_date_to_after_date_from, EmptySlotsException
 from src.services.base import BaseService
 
 
@@ -30,6 +30,7 @@ class RoomServise(BaseService):
         _room_data = RoomsAdd(hotel_id=hotel_id, **data.model_dump())
         room = await self.db.rooms.add(_room_data)
 
+        rooms_facilities_data = []
         if data.facilities_ids:
             rooms_facilities_data = [
                 RoomsFacilitiesAdd(room_id=room.id, facilities_id=f_id)
@@ -66,6 +67,8 @@ class RoomServise(BaseService):
         await HotelService(self.db).get_hotel_with_check(hotel_id=hotel_id)
         await self.get_room_with_check(id=id)
         _room_data_dict = new_data.model_dump(exclude_unset=True)
+        if not _room_data_dict:
+            raise EmptySlotsException
         _room_data = RoomsPatch(hotel_id=hotel_id, **_room_data_dict)
         await self.db.rooms.edit(_room_data, is_patch=True, id=id, hotel_id=hotel_id)
         if "facilities_ids" in _room_data_dict:
@@ -76,12 +79,12 @@ class RoomServise(BaseService):
         await self.db.commit()
 
     async def delete_rooms(self, hotel_id: int, id: int):
-        await HotelService(self.db).get_hotel_with_check(hotel_id=hotel_id)
+        await HotelService(self.db).get_hotel_with_check(id=hotel_id)
         await self.get_room_with_check(id=id)
         await self.db.rooms.delete(id=id, hotel_id=hotel_id)
         await self.db.commit()
 
-    async def get_room_with_check(self, room_id: int) -> Room:
+    async def get_room_with_check(self, id: int) -> Room:
         try:
             await self.db.rooms.get_one(id=id)
         except ObjectNotFoundException:

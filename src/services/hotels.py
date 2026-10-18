@@ -1,6 +1,6 @@
 from datetime import date
 from src.schemas.hotels import Hotel, HotelAdd, HotelPatch
-from src.exceptions import HotelNotFoundException, ObjectNotFoundException, check_date_to_after_date_from
+from src.exceptions import HotelNotFoundException, ObjectNotFoundException, check_date_to_after_date_from, EmptySlotsException
 from src.services.base import BaseService
 
 
@@ -28,23 +28,31 @@ class HotelService(BaseService):
         return await self.db.hotels.get_one(id=hotel_id)
     
     async def add_hotel(self, data: HotelAdd):
-        await self.db.hotels.add(data)
+        hotel = await self.db.hotels.add(data)
         await self.db.commit()
+        return hotel
     
     async def edit_hotel(self, data: HotelAdd, id: int):
+        await self.get_hotel_with_check(id=id)
         await self.db.hotels.edit(data, id=id)
         await self.db.commit()
     
     async def change_params(self, data: HotelPatch, id: int):
-        await self.db.hotels.edit(data, is_patch=True, id=id)
+        await self.get_hotel_with_check(id=id)
+        _hotel_data_dict = data.model_dump(exclude_unset=True)
+        if not _hotel_data_dict:
+            raise EmptySlotsException
+        _hotel_data = HotelPatch(**_hotel_data_dict)
+        await self.db.hotels.edit(_hotel_data, is_patch=True, id=id)
         await self.db.commit()
     
     async def delete_hotels(self, id: int):
+        await self.get_hotel_with_check(id=id)
         await self.db.hotels.delete(id=id)
         await self.db.commit()
     
-    async def get_hotel_with_check(self, hotel_id: int) -> Hotel:
+    async def get_hotel_with_check(self, id: int) -> Hotel:
         try:
-            await self.db.hotels.get_one(id=hotel_id)
+            return await self.db.hotels.get_one(id=id)
         except ObjectNotFoundException:
             raise HotelNotFoundException
