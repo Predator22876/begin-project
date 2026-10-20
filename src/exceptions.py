@@ -51,6 +51,9 @@ class EmptyPassword(MyAppException):
 class EmptySlotsException(MyAppException):
     detail = "Поля не могут быть пустым"
 
+class LocationNotUniqueException(MyAppException):
+    detail = "Уже существует отель с такой локацией"
+
 
 def check_date_to_after_date_from(date_from: date, date_to: date) -> None:
     if date_to <= date_from:
@@ -106,3 +109,6 @@ class EmptyPasswordHTTPException(MyAppHTTPException):
 class EmptySlotsHTTPException(MyAppHTTPException):
     status_code = 422
     detail = "Поля не могут быть пустым"
+
+class LocationNotUniqueHTTPException(MyAppHTTPException):
+    detail = "Уже существует отель с такой локацией"

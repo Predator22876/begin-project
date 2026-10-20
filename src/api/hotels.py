@@ -6,7 +6,9 @@ from src.exceptions import (
     HotelNotFoundHTTPException,
     HotelNotFoundException,
     EmptySlotsException,
-    EmptySlotsHTTPException
+    EmptySlotsHTTPException,
+    LocationNotUniqueException,
+    LocationNotUniqueHTTPException
 )
 from src.api.dependencies import PaginationDep, DBDep
 from src.schemas.hotels import HotelAdd, HotelPatch
@@ -37,9 +39,11 @@ async def create_hotel(
         }
     ),
 ):
-    hotel = await HotelService(db).add_hotel(hotel_data)
-    return {"status": "ok", "data": hotel}
-
+    try:
+        hotel = await HotelService(db).add_hotel(hotel_data)
+        return {"status": "ok", "data": hotel}
+    except LocationNotUniqueException:
+        raise LocationNotUniqueHTTPException
 
 @router.get("")
 async def get_hotels(
