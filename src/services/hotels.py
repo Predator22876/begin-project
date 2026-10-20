@@ -1,4 +1,5 @@
 from datetime import date
+from sqlalchemy.exc import IntegrityError
 
 from sqlalchemy import Boolean
 from src.schemas.hotels import Hotel, HotelAdd, HotelPatch
@@ -37,12 +38,10 @@ class HotelService(BaseService):
     
     async def add_hotel(self, data: HotelAdd):
         try:
-            await self.check_unique_location(data.location)
-        except ObjectNotFoundException:
             hotel = await self.db.hotels.add(data)
             await self.db.commit()
             return hotel
-        else:
+        except IntegrityError:
             raise LocationNotUniqueException
         
     async def edit_hotel(self, data: HotelAdd, id: int):
