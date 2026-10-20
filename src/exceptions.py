@@ -111,4 +111,5 @@ class EmptySlotsHTTPException(MyAppHTTPException):
     detail = "Поля не могут быть пустым"
 
 class LocationNotUniqueHTTPException(MyAppHTTPException):
+    status_code = 409
     detail = "Уже существует отель с такой локацией"

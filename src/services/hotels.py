@@ -36,7 +36,9 @@ class HotelService(BaseService):
         return await self.db.hotels.get_one(id=hotel_id)
     
     async def add_hotel(self, data: HotelAdd):
-        if self.check_unique_location(data.location):
+        try:
+            self.check_unique_location(data.location)
+        except ObjectNotFoundException:
             hotel = await self.db.hotels.add(data)
             await self.db.commit()
             return hotel
@@ -68,11 +70,10 @@ class HotelService(BaseService):
         except ObjectNotFoundException:
             raise HotelNotFoundException
     
-    async def check_unique_location(self, location: str) -> bool:
+    async def check_unique_location(self, location: str) -> Hotel:
         try:
-            await self.db.hotels.get_one(location)
-            return False
+            return await self.db.hotels.get_one(location=location)
         except ObjectNotFoundException:
-            return True
+            raise ObjectNotFoundException
 
     
