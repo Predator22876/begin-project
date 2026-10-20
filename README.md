@@ -22,25 +22,23 @@ docker network create myNetwork
 ```bash
 docker volume create pg-booking-data
 
-docker run -d \
-  --name booking_db \
-  --restart unless-stopped \
-  --network myNetwork \
-  -e POSTGRES_USER=<пользователь_базы> \
-  -e POSTGRES_PASSWORD=<надёжный_пароль> \
-  -e POSTGRES_DB=<имя_базы> \
-  -v pg-booking-data:/var/lib/postgresql/data \
-  postgres:16-alpine
+docker run --name booking_db \
+    -p 6432:5432 \
+    -e POSTGRES_USER=postgres \
+    -e POSTGRES_PASSWORD=sdklafjlkasdjflksdfsdl \
+    -e POSTGRES_DB=booking \
+    --network=myNetwork \
+    --volume pg-booking-data:/var/lib/postgresql/data \
+    -d postgres:16-alpine
 ```
 
 Запустите Redis в той же сети:
 
 ```bash
-docker run -d \
-  --name booking_cache \
-  --restart unless-stopped \
-  --network myNetwork \
-  redis
+docker run --name booking_cache \
+    -p 7379:6379 \
+    --network=myNetwork \
+    -d redis
 ```
 
 Для подключения приложения не нужно публиковать PostgreSQL и Redis на публичные
@@ -78,7 +76,27 @@ ACCESS_TOKEN_EXPIRE_MINUTES=<время_действия_токена_в_мин�
 Оставьте настройки JWT и остальные уже используемые значения проекта корректными.
 Не добавляйте `.env` в Git и не публикуйте его содержимое.
 
-## 3. Обновить код и запустить Compose
+## 3. Отправить миграцию и обновить код на сервере
+
+Перед обновлением сервера проверьте в локальной копии проекта, что новая миграция
+добавлена в Git и отправлена в ту ветку, которую сервер обновляет. Само изменение
+модели не меняет схему уже существующей базы, а файл, не добавленный в Git, команда
+`git pull` на сервер не загрузит.
+
+В корне проекта выполните:
+
+```bash
+git status --short
+git add src/migrations/versions/2026_10_21_0030-9dbbaf3fc120_unique_hotel_location.py
+git commit -m "Add unique hotel location constraint"
+git push
+```
+
+Перед `git add` убедитесь, что в миграции указан ожидаемый `down_revision` и что
+файл действительно присутствует. Если модель или обработчик ошибки тоже ещё не
+отправлены в Git, добавьте нужные файлы в тот же коммит.
+
+## 4. Обновить код и запустить Compose
 
 Перейдите в каталог проекта, получите версию кода с исправлением и проверьте, что
 рядом находятся `Dockerfile`, `docker-compose.yml` и `.env`. Например, если проект
@@ -105,6 +123,17 @@ docker compose ps
 docker compose logs --tail=200 booking_back
 ```
 
+Проверьте в логах, что Alembic применил ревизию `9dbbaf3fc120`. Дополнительно
+убедитесь, что PostgreSQL создал ограничение:
+
+```bash
+docker exec booking_db sh -c \
+  'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT conname FROM pg_constraint WHERE conrelid = '\''hotels'\''::regclass AND contype = '\''u'\'';"'
+```
+
+В результате должно присутствовать `uq_hotels_location`. Если ревизия отсутствует,
+значит миграция не попала в образ или не применилась; смотрите ошибку в логах API.
+
 Если миграция применилась, в логах не должно быть ошибки Alembic, а API должен
 запуститься. При ошибке миграции сначала устраните указанную в логах причину, затем
 повторите запуск:
@@ -113,7 +142,7 @@ docker compose logs --tail=200 booking_back
 docker compose up --build -d
 ```
 
-## 4. Проверить доступность приложения
+## 5. Проверить доступность приложения
 
 Compose запускает API на порту `8000` внутри Docker-сети, но сам порт наружу не
 публикует. В текущей конфигурации для доступа снаружи используется Nginx, который
