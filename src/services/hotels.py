@@ -37,7 +37,7 @@ class HotelService(BaseService):
     
     async def add_hotel(self, data: HotelAdd):
         try:
-            self.check_unique_location(data.location)
+            await self.check_unique_location(data.location)
         except ObjectNotFoundException:
             hotel = await self.db.hotels.add(data)
             await self.db.commit()
