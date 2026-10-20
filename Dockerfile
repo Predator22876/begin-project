@@ -11,4 +11,4 @@ COPY . .
 
 
 # CMD ["python", "-m", "src.main"]
-CMD alembic upgrade head; python -m src.main
+CMD ["sh", "-c", "alembic upgrade head && exec python -m src.main"]

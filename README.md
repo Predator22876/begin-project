@@ -31,7 +31,7 @@ docker run --name booking_cache \
 docker run --name booking_nginx \
     --volume ./nginx.conf:/etc/nginx/nginx.conf \
     --network=myNetwork \ 
-    -d -p 80:80 nginx
+    --rm -p 80:80 nginx
 ```
 ### Для PowerShell (Windows):
 
@@ -49,6 +49,10 @@ docker run --name booking_cache -p 7379:6379 --network=myNetwork -d redis
 ## Запуск приложения (многократно)
 
 После первого запуска БД и кэша, используйте Docker Compose для запуска приложения:
+При старте API автоматически применяются миграции Alembic. Если миграция завершится
+ошибкой, API не запустится, а причина будет видна в логах контейнера.
+Если таблицу удалить вручную, но оставить запись о ревизии в `alembic_version`,
+Alembic не создаст её повторно. Для тестовой БД используйте полный сброс ниже.
 
 ```bash
 # Собрать и запустить все контейнеры (API + Celery)
@@ -78,6 +82,7 @@ docker compose down
 # Остановить и удалить все контейнеры и сеть
 docker compose down -v
 docker rm -f booking_db booking_cache 2>/dev/null
+docker volume rm pg-booking-data 2>/dev/null
 docker network rm myNetwork 2>/dev/null
 
 # Потом повторить первый и второй пункты выше
@@ -89,6 +94,7 @@ docker network rm myNetwork 2>/dev/null
 # Остановить и удалить все контейнеры и сеть
 docker compose down -v
 docker rm -f booking_db booking_cache
+docker volume rm pg-booking-data
 docker network rm myNetwork
 
 # Потом повторить первый и второй пункты выше
