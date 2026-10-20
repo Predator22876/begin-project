@@ -36,7 +36,7 @@ class HotelService(BaseService):
         return await self.db.hotels.get_one(id=hotel_id)
     
     async def add_hotel(self, data: HotelAdd):
-        if self.check_unique_location():
+        if self.check_unique_location(data.location):
             hotel = await self.db.hotels.add(data)
             await self.db.commit()
             return hotel
