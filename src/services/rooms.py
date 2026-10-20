@@ -26,7 +26,7 @@ class RoomServise(BaseService):
         hotel_id: int,
         data: RoomsAddRequest,
     ):
-        await HotelService(self.db).get_hotel_with_check(hotel_id=hotel_id)
+        await HotelService(self.db).get_hotel_with_check(id=hotel_id)
         _room_data = RoomsAdd(hotel_id=hotel_id, **data.model_dump())
         room = await self.db.rooms.add(_room_data)
 
@@ -47,7 +47,7 @@ class RoomServise(BaseService):
         id: int, 
         new_data: RoomsAddRequest,
     ):
-        await HotelService(self.db).get_hotel_with_check(hotel_id=hotel_id)
+        await HotelService(self.db).get_hotel_with_check(id=hotel_id)
         
         await self.get_room_with_check(id=id)
         _room_data = RoomsAdd(hotel_id=hotel_id, **new_data.model_dump())
@@ -64,7 +64,7 @@ class RoomServise(BaseService):
         id: int, 
         new_data: RoomsPatchRequest,
     ):
-        await HotelService(self.db).get_hotel_with_check(hotel_id=hotel_id)
+        await HotelService(self.db).get_hotel_with_check(id=hotel_id)
         await self.get_room_with_check(id=id)
         _room_data_dict = new_data.model_dump(exclude_unset=True)
         if not _room_data_dict:
