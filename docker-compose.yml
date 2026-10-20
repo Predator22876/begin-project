@@ -3,13 +3,8 @@ services:
     container_name: "booking_back"
     build:
       context: .    
-<<<<<<< HEAD
     #ports:
     # - "7777:8000"
-=======
-    # ports:
-    #   - "7777:8000"
->>>>>>> refs/remotes/origin/main
     networks:
       - myNetwork
     env_file:
